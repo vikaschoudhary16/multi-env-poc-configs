@@ -1,0 +1,103 @@
+apiVersion: install.xcp.tetrate.io/v1alpha1
+kind: EdgeXcp
+metadata:
+  annotations:
+    tsb.tetrate.io/contentHash: b51758a505ee7267
+  creationTimestamp: "2022-09-26T03:35:44Z"
+  generation: 6
+  labels:
+    install.tetrate.io/owner-kind: ControlPlane
+    install.tetrate.io/owner-name: controlplane
+    install.tetrate.io/owner-namespace: istio-system
+    install.tetrate.io/owner-version: v1alpha1
+    platform.tsb.tetrate.io/application: xcp-operator-edge
+    platform.tsb.tetrate.io/component: xcp
+    platform.tsb.tetrate.io/plane: control
+  name: edge-xcp
+  namespace: istio-system
+  ownerReferences:
+  - apiVersion: install.tetrate.io/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ControlPlane
+    name: controlplane
+    uid: ef36bc9c-d8e6-4906-a358-da2811fe4d06
+  resourceVersion: "480613"
+  uid: 58d98336-9f7e-43c2-9697-2baa6c2d33da
+spec:
+  centralAuthJwt:
+    centralCaSecret: xcp-central-ca-bundle
+    centralSni: central.xcp.tetrate.io
+    secret: xcp-edge-central-auth-token
+  centralAuthMode: JWT
+  components:
+    edgeServer:
+      kubeSpec:
+        deployment:
+          env:
+          - name: CONTROLPLANE_VERSION
+            value: vpulumi-tsb/0.0.6-master (44be80c46, +74)
+          labels:
+            platform.tsb.tetrate.io/application: xcp-edge
+            platform.tsb.tetrate.io/component: xcp
+            platform.tsb.tetrate.io/plane: control
+          podLabels:
+            platform.tsb.tetrate.io/application: xcp-edge
+            platform.tsb.tetrate.io/component: xcp
+            platform.tsb.tetrate.io/plane: control
+        service:
+          labels:
+            platform.tsb.tetrate.io/application: xcp-edge
+            platform.tsb.tetrate.io/component: xcp
+            platform.tsb.tetrate.io/plane: control
+    istio:
+      envoyAccessLogSink:
+        disableTLS: false
+        onDemandEnvoyStatsEnabled: false
+        serverAddress:
+          host: oap.istio-system.svc
+          port: 11800
+      kubeSpec:
+        deployment:
+          hpaSpec:
+            maxReplicas: 10
+            metrics:
+            - resource:
+                name: cpu
+                targetAverageUtilization: 75
+              type: Resource
+            minReplicas: 1
+          replicaCount: 1
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 4096Mi
+            requests:
+              cpu: 500m
+              memory: 2048Mi
+        service: {}
+      proxyMetadataExchangeKeys:
+        ISTIO_ADDITIONAL_METADATA_EXCHANGE_KEYS: TSB_CLUSTER
+        TSB_CLUSTER: cluster-0
+      traceSamplingRate: 100
+      traceServer:
+        host: zipkin.istio-system.svc
+        port: 9411
+      trustDomain: cluster-0.tsb.local
+    rateLimitServer:
+      backend:
+        redis:
+          uri: ratelimit-redis.istio-system.svc.cluster.local:6379
+  discoveryIgnoredIstioRevisions:
+  - tsb
+  environments:
+  - name: qa
+    revisions:
+      red: {}
+  - name: dev
+    revisions:
+      green: {}
+  hub: localhost:5000
+  istioTrustDomain: cluster-0.tsb.local
+  xcpCentralHost: 172.29.255.155:9443
+  xcpEdgeClusterName: cluster-0

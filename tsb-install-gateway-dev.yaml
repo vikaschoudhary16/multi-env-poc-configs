@@ -1,0 +1,35 @@
+apiVersion: install.tetrate.io/v1alpha1
+kind: IngressGateway
+metadata:
+  name: tsb-gateway-dev
+  namespace: echo-dev
+spec:
+  revision: greenish
+  kubeSpec:
+    service:
+      type: LoadBalancer
+      ports:
+        - port: 15443
+          name: istio-mtls
+          targetPort: 15443
+        - port: 8080
+          name: http2-test
+          targetPort: 8080
+        - port: 15021
+          name: status-port
+          targetPort: 15021
+        - port: 443
+          targetPort: 8443
+          name: https
+        - port: 17443
+          name: https-2
+          targetPort: 17443
+        - port: 18443
+          targetPort: 19443
+          name: https-3
+        - port: 6666
+          targetPort: 8888
+          name: tcp-opaque
+        - port: 9999
+          targetPort: 9977
+          name: tcp-with-tls

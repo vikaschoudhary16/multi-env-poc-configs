@@ -1,0 +1,283 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio.io/rev: greenish
+  name: echo-dev
+spec:
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"echo-dev","namespace":"echo-7-64437"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"echo","istio-locality":"us-east1","version":"v1"}},"template":{"metadata":{"annotations":{"prometheus.io/port":"15014","prometheus.io/scrape":"true","sidecar.istio.io/inject":"true","sidecar.istio.io/userVolume":"[{\"configMap\":{\"name\":\"authz-ca-certs\"},\"name\":\"authz-certs\"},{\"name\":\"authz-client-cred\",\"secret\":{\"secretName\":\"authz-client-cred\"}},{\"name\":\"shady-authz-client-cred\",\"secret\":{\"secretName\":\"shady-authz-client-cred\"}},{\"configMap\":{\"name\":\"rl-ca-certs\"},\"name\":\"rl-certs\"},{\"name\":\"rl-client-cred\",\"secret\":{\"secretName\":\"rl-client-cred\"}},{\"name\":\"shady-rl-client-cred\",\"secret\":{\"secretName\":\"shady-rl-client-cred\"}}]","sidecar.istio.io/userVolumeMount":"[{\"mountPath\":\"/etc/certs/authz\",\"name\":\"authz-certs\"},{\"mountPath\":\"/etc/cred/authz\",\"name\":\"authz-client-cred\"},{\"mountPath\":\"/etc/cred/shady-authz\",\"name\":\"shady-authz-client-cred\"},{\"mountPath\":\"/etc/certs/rl\",\"name\":\"rl-certs\"},{\"mountPath\":\"/etc/cred/rl\",\"name\":\"rl-client-cred\"},{\"mountPath\":\"/etc/cred/shady-rl\",\"name\":\"shady-rl-client-cred\"}]"},"labels":{"app":"echo","istio-locality":"us-east1","test.istio.io/class":"standard","version":"v1"}},"spec":{"containers":[{"image":"auto","imagePullPolicy":"Always","name":"istio-proxy","securityContext":{"readOnlyRootFilesystem":false}},{"args":["--metrics=15014","--cluster","cluster-0","--grpc","7070","--port","8090","--port","9443","--tls=9443","--tcp","7777","--tcp","7799","--port","8080","--port","3333","--version","v1","--istio-version","","--crt=/etc/certs/custom/cert-chain.pem","--key=/etc/certs/custom/key.pem"],"env":[{"name":"INSTANCE_IP","valueFrom":{"fieldRef":{"fieldPath":"status.podIP"}}}],"image":"gcr.io/xcp-istio/app:1.12.8-7b70b57bd4","imagePullPolicy":"Always","livenessProbe":{"failureThreshold":10,"initialDelaySeconds":10,"periodSeconds":10,"tcpSocket":{"port":"tcp-health-port"}},"name":"app","ports":[{"containerPort":7070},{"containerPort":8090},{"containerPort":9443},{"containerPort":7777},{"containerPort":7799},{"containerPort":8080},{"containerPort":3333,"name":"tcp-health-port"}],"readinessProbe":{"failureThreshold":10,"httpGet":{"path":"/","port":8080},"initialDelaySeconds":1,"periodSeconds":2},"securityContext":{"runAsGroup":1338,"runAsUser":1338},"startupProbe":{"failureThreshold":10,"periodSeconds":10,"tcpSocket":{"port":"tcp-health-port"}},"volumeMounts":[{"mountPath":"/etc/certs/custom","name":"custom-certs"}]}],"volumes":[{"configMap":{"name":"echo-certs"},"name":"custom-certs"}]}}}}
+  generation: 1
+  name: echo-dev
+  namespace: echo-dev
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: echo
+      istio-locality: us-east1
+      version: v1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: "15014"
+        prometheus.io/scrape: "true"
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: echo
+        istio-locality: us-east1
+        test.istio.io/class: standard
+        version: v1
+    spec:
+      containers:
+        - image: auto
+          imagePullPolicy: Always
+          name: istio-proxy
+          resources: {}
+          securityContext:
+            readOnlyRootFilesystem: false
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+            - --metrics=15014
+            - --cluster
+            - cluster-0
+            - --grpc
+            - "7070"
+            - --port
+            - "8090"
+            - --port
+            - "9443"
+            - --tls=9443
+            - --tcp
+            - "7777"
+            - --tcp
+            - "7799"
+            - --port
+            - "8080"
+            - --port
+            - "3333"
+            - --version
+            - v1
+            - --istio-version
+            - ""
+            - --crt=/etc/certs/custom/cert-chain.pem
+            - --key=/etc/certs/custom/key.pem
+          env:
+            - name: INSTANCE_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+          image: gcr.io/xcp-istio/app:1.12.8-7b70b57bd4
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 10
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: tcp-health-port
+            timeoutSeconds: 1
+          name: app
+          ports:
+            - containerPort: 7070
+              protocol: TCP
+            - containerPort: 8090
+              protocol: TCP
+            - containerPort: 9443
+              protocol: TCP
+            - containerPort: 7777
+              protocol: TCP
+            - containerPort: 7799
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 3333
+              name: tcp-health-port
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            runAsGroup: 1338
+            runAsUser: 1338
+          startupProbe:
+            failureThreshold: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: tcp-health-port
+            timeoutSeconds: 1
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /etc/certs/custom
+              name: custom-certs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: echo-certs
+          name: custom-certs
+---      
+apiVersion: v1
+data:
+  cert-chain.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIID7jCCAdagAwIBAgIBADANBgkqhkiG9w0BAQsFADAsMQswCQYDVQQGEwJVUzEL
+    MAkGA1UECAwCQ0ExEDAOBgNVBAoMB1RldHJhdGUwHhcNMjIwMzIzMDI1MTQxWhcN
+    MjMwMzIzMDI1MTQxWjAsMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExEDAOBgNV
+    BAoMB1RldHJhdGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4TA8h
+    RXJwVBG5YmOiYBrkkoqFeNiVmag6l8VrwB0G+iD+6JbmvnHVxoO9E1OmfEgGRQYo
+    t/EIHirzlycmmmMda4IUM3sUmk6N24+ojCOWkdi543TVqCa7VmeXXvGe29EfMr8j
+    Cglwb6A5AeauFDSjGQP5xXOaRqOW6DjjCyCgf72AFY49t0fBycds4QBOA+d70PU6
+    WATIc/72a4F6SUzq7U8gyvvLn0Nd86H0cpkWFTYc7ACWaOpsjjtotLhyq1SF9AuS
+    Kjir+zALFlDmmNNamX0yYn2lGZ4pU25isaJc0T00BkP2nN9hGJln+Rf3AcUS3pKC
+    aE4/+Ghu7gJ1LbGnAgMBAAGjGzAZMBcGA1UdEQQQMA6CDCoudGV0cmF0ZS5pbzAN
+    BgkqhkiG9w0BAQsFAAOCAgEAjIACqOS/kCjBwZHnsGGp9MhWRaYLApof8QtCV2m5
+    mn8tTx9RfgYDrtGt2pq4l9me1DfiHvqCf9sWwetS2XDScsdAXK9kDSjMkvGTOKwU
+    iEsU7O/BrYe/191V6Tnn5Vvy4Y9oxN3Rragy5dfySlStvY1l+AcL7lFRnzCGlUa+
+    aoy9RorqpjcF/DtMaPVnNiuqpmtCwlL96zYb9g0VNi4FpjaDnuplwmq9w7dN8zPd
+    OWAcqXJ/z9O3spKHcLwvFCLFD1a+HxxV6/MyKJt1+QgkCq7Ci3y0SNVNgBe9gviI
+    c5Kd+sy8+O7RbkM0ifDFEzBX+iv2ggdBJaEiW2aqW1KYfLozLM6s56enETMSojbB
+    80Qx4qYS/Ifnf/uTOPbl56pSg2xL8LjMJwwKW52xjEzZ6fvY3yL6fP5s3E6UyZw2
+    nSsoe5tyXzLrCUmeo8wiPQh5hdO9M9gW8T0PyGS1gjMdosOZVhNzHQBep0ADq4Sw
+    hQ/HajTjCCpn5RIrDO+b4iFtVPyTSdfRdxb/s3Mh2Qepsshin6TC73+qS+a/9HNU
+    Qq7HsfnxQ/Z8SH0sDGfFCChVdzqRNCBr5o2EwX2EAA1pHldHytG61+IyOzSH0b18
+    CHNJGq4csjfpGrJfXAPAXTKySZIqMNGG3DrAg19S1UywrbP5mdwEyRS6iCDxSxYA
+    TsI=
+    -----END CERTIFICATE-----
+  key.pem: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4TA8hRXJwVBG5
+    YmOiYBrkkoqFeNiVmag6l8VrwB0G+iD+6JbmvnHVxoO9E1OmfEgGRQYot/EIHirz
+    lycmmmMda4IUM3sUmk6N24+ojCOWkdi543TVqCa7VmeXXvGe29EfMr8jCglwb6A5
+    AeauFDSjGQP5xXOaRqOW6DjjCyCgf72AFY49t0fBycds4QBOA+d70PU6WATIc/72
+    a4F6SUzq7U8gyvvLn0Nd86H0cpkWFTYc7ACWaOpsjjtotLhyq1SF9AuSKjir+zAL
+    FlDmmNNamX0yYn2lGZ4pU25isaJc0T00BkP2nN9hGJln+Rf3AcUS3pKCaE4/+Ghu
+    7gJ1LbGnAgMBAAECggEAK/7UOdAXUqNvG79WI6Qnp1soQFap9YSZ+WrT0TYqd8js
+    aY3iwDDEghECz/c2J+9RTlXZ84x9uL9i54W07e07LgHFKsdjYXa4u/qnH8hckow8
+    nZuj/4FFxcEJt8QNkCvPj1AQ+u9hc3riV9mRVQszyZ+mKFEvmKu2T8ceFW1Jm6aa
+    /l+31boyB9EBUaobVmcPec45ym4eSXbr8Q+kj0zwg1fS2rT2gJtidlB9xkJ16H44
+    XanicoI8Dpjh8nUNiyKub56IQ2V+tZbzY6AT3fZQLeLpH4dIa0FriPEWhWltJ8X1
+    i4BcdrMDf9vrmG2MyfizisyhES4hYH+PcXL4AFb1aQKBgQDpl3JVXbuJpPSXBWD7
+    eTepsB9cMMpQv5uGC32B1UX5SB92DaQfxDKT/GOOC62FWs0GHLaNqj8CRCCV6/rn
+    GfENdL2+cWjTCFZiOA+H5f1k9L5982lpTRlqq5QiLhoAaQf3zSEUsGXMbnvyt/xY
+    mjn1Qv0EsXBdGxXu1EwTQrpmtQKBgQDJ+glGbsAiz4h6E4BlKyfPoBuBj9zr43Pd
+    mZAhRYbCAAkHptkEWsehO2N4ew08Q3xngZZdj/JchLNYGct5NkvNH/SrxeU2ylkT
+    fSESkeyr50DGbSBiZzA2uaRn1Z87bzorxRUhBWSssnIM95sjafo7+uFgTCFIRF5D
+    MlxE+8g0awKBgQCBBs54qNW2Kg+Qe8AeJ86/RDGOUsTt5Wiami4xUQTdtSDrrI1D
+    nrPxWjADfh/S0Vz+S03q4mb7cXYuWbK1hHbJ3/oO/8XPC4PrrNunTTqyUR4HpDRN
+    nfC0IyIn3x8tqtZj4kKrkuQoD78XStlwd4AcIWxw8zIFu7hZu5pp6SndIQKBgFig
+    5W0IsDsWQlb/M7oxI7kSEr/ZtyGzn2ZAOmS/M5DxnwTCjDxC8ZKoks+Nf5NQMcjh
+    rm/D+J/sgx5Hw2efEcgjG6Q8pIZUaJ4KrHaPngEY6u2neSx1B00cTS5bKRJVjnsi
+    clEZIsI9U5qpFGSH3oxvXHJ7NaeWiJ6H/MEwkvudAoGAWBEqNSc9YrfEwg6yCb+N
+    W31cbcC4ZHttrWZDI2xdZTtvNQZ5VD2/lMsrl7iCTHPBxLdnKznSdskaYDSv1Ko8
+    zT3gS81dG70S2dDSx2exTsunYVY2LEUBd6uJ8s0xEHqOrlnlK3K6CnPPgflnXxq5
+    CqghzqXKLY7LGNZ7rtzgLAM=
+    -----END PRIVATE KEY-----
+  root-cert.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIE1DCCArwCCQCJyJNsuqYSxDANBgkqhkiG9w0BAQsFADAsMQswCQYDVQQGEwJV
+    UzELMAkGA1UECAwCQ0ExEDAOBgNVBAoMB1RldHJhdGUwHhcNMjIwMzIzMDI1MTQx
+    WhcNMjMwMzIzMDI1MTQxWjAsMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExEDAO
+    BgNVBAoMB1RldHJhdGUwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDe
+    F51qmZDvL1CtKqYPlbrFWBJK70KJudm+joP7gwONCa41fcYGRe8Rzj1JixsIVuoW
+    NVXxggSd1eE32ZmvYd30zGrz84lB7uqUzZF3c1kHj0mWyHHTsiWsUBa1qcARKFm/
+    RM1Ni/BgoLRPnEBZPucd1VHIOmQLgf2fOtMBjMjiDz2wnS0n3+/Cjueue0FDyaO8
+    Z6YivnEaj4Zx3ShRN1bQs2NkRGP41Hdhtq1Yk/jGM9y5m9bWWQdaSKoX2kUBhmu3
+    mwF+Tr/RM6h21h6jzsek3HGkkPZWPnJB4nWvFxt4TVXBW8xv6p1lQHnewwIHsRwp
+    TKE4H3epjUWghQOsT2LeL78h8Oeoez7geHT4Z4sdl5vATCFebhlrFKYjWAYlTtpy
+    Z1fduO5CyAOkTfoB9uj+vfXAUZvft1vp2sI0we8tdI8z+rSe+3acXTIl0I/ZjPM7
+    B0YKbq1o/gTNpUX99ZuZWOtkCj7abzuNu14Xco+ICwa6KgKUEhAR8gDA+IqiQPwg
+    NUtVxp+NIetmc5fFLv+TvA8f9YQzN1oVI3FQ8GWv9aYD0SMEiBD8fsvDt5WWdKwj
+    VJ96wkXn1zbG9P1MK6eywHsWQYjdMX3osgF0s8w6/bM/EbSCGtNYYx5ANnVm2Pb6
+    2klwc1S6AumjB7mt/8fpW3aDGh0Ue0ZSm53+IS0D0wIDAQABMA0GCSqGSIb3DQEB
+    CwUAA4ICAQBh2OZPMp9cu9jMRszSVQxvh7ec+5GtptD0xCesyOWw7DY0cAMKIqiB
+    9BQTzwn92CK78fvUQ8f8pRYdQDsL4gWe4xBgvrYKsW6JyTlZuO312K9v0jgyTYhk
+    J23D/AbCIBm1Uk3LMTOFHkinNJL1QmRya5cv0XjK/9XZycAjAFkjfz7M9KEES9xJ
+    UmYLjAOz6XZnqWKGMODRiXEuuUnOqq0ycatSfEAUq7tVN/GFrS6GYEtkY4SBsZw/
+    OoVYbwOgqn2BoiST6JmHPu8ZmUP1pUDHb0rWxYV6Kbthm2Ium2nZsxmP0KFgMTA2
+    AUJLwkC1Ttk1q15q5e83cMLHLgEOesOqYBogQxEGL8+x2CNxU0mY2m0c5GeKib2N
+    XWBglUmpjTknubPHKiS2I4zuu1VDwZ85kQ11elGE8T1kBAK58Xf96D8MlDCy6nfw
+    DhhQovV+1VD5bKNSoUeUiOFcRGlwrG2jWojdTrOWz113NBfm5Fpp4B5h5YUeI8ZA
+    OfKu9zql2f2TzkU16wfMOxpc14CwPHo1lUirb8fZwwNKYsXLRjMzlwnGWyH15EQ5
+    gxp5II/xRsjmz1/iL1umS8U4XFVV2COcSS0GhFpGKcv9gisbDRTAYstoTw+qu/hr
+    32tXXwQaZhrAbsWGES19EzDHDRvP+xjaaqDte0/v9JDAErF56ngdoA==
+    -----END CERTIFICATE-----
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"cert-chain.pem":"-----BEGIN CERTIFICATE-----\nMIID7jCCAdagAwIBAgIBADANBgkqhkiG9w0BAQsFADAsMQswCQYDVQQGEwJVUzEL\nMAkGA1UECAwCQ0ExEDAOBgNVBAoMB1RldHJhdGUwHhcNMjIwMzIzMDI1MTQxWhcN\nMjMwMzIzMDI1MTQxWjAsMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExEDAOBgNV\nBAoMB1RldHJhdGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4TA8h\nRXJwVBG5YmOiYBrkkoqFeNiVmag6l8VrwB0G+iD+6JbmvnHVxoO9E1OmfEgGRQYo\nt/EIHirzlycmmmMda4IUM3sUmk6N24+ojCOWkdi543TVqCa7VmeXXvGe29EfMr8j\nCglwb6A5AeauFDSjGQP5xXOaRqOW6DjjCyCgf72AFY49t0fBycds4QBOA+d70PU6\nWATIc/72a4F6SUzq7U8gyvvLn0Nd86H0cpkWFTYc7ACWaOpsjjtotLhyq1SF9AuS\nKjir+zALFlDmmNNamX0yYn2lGZ4pU25isaJc0T00BkP2nN9hGJln+Rf3AcUS3pKC\naE4/+Ghu7gJ1LbGnAgMBAAGjGzAZMBcGA1UdEQQQMA6CDCoudGV0cmF0ZS5pbzAN\nBgkqhkiG9w0BAQsFAAOCAgEAjIACqOS/kCjBwZHnsGGp9MhWRaYLApof8QtCV2m5\nmn8tTx9RfgYDrtGt2pq4l9me1DfiHvqCf9sWwetS2XDScsdAXK9kDSjMkvGTOKwU\niEsU7O/BrYe/191V6Tnn5Vvy4Y9oxN3Rragy5dfySlStvY1l+AcL7lFRnzCGlUa+\naoy9RorqpjcF/DtMaPVnNiuqpmtCwlL96zYb9g0VNi4FpjaDnuplwmq9w7dN8zPd\nOWAcqXJ/z9O3spKHcLwvFCLFD1a+HxxV6/MyKJt1+QgkCq7Ci3y0SNVNgBe9gviI\nc5Kd+sy8+O7RbkM0ifDFEzBX+iv2ggdBJaEiW2aqW1KYfLozLM6s56enETMSojbB\n80Qx4qYS/Ifnf/uTOPbl56pSg2xL8LjMJwwKW52xjEzZ6fvY3yL6fP5s3E6UyZw2\nnSsoe5tyXzLrCUmeo8wiPQh5hdO9M9gW8T0PyGS1gjMdosOZVhNzHQBep0ADq4Sw\nhQ/HajTjCCpn5RIrDO+b4iFtVPyTSdfRdxb/s3Mh2Qepsshin6TC73+qS+a/9HNU\nQq7HsfnxQ/Z8SH0sDGfFCChVdzqRNCBr5o2EwX2EAA1pHldHytG61+IyOzSH0b18\nCHNJGq4csjfpGrJfXAPAXTKySZIqMNGG3DrAg19S1UywrbP5mdwEyRS6iCDxSxYA\nTsI=\n-----END CERTIFICATE-----\n","key.pem":"-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4TA8hRXJwVBG5\nYmOiYBrkkoqFeNiVmag6l8VrwB0G+iD+6JbmvnHVxoO9E1OmfEgGRQYot/EIHirz\nlycmmmMda4IUM3sUmk6N24+ojCOWkdi543TVqCa7VmeXXvGe29EfMr8jCglwb6A5\nAeauFDSjGQP5xXOaRqOW6DjjCyCgf72AFY49t0fBycds4QBOA+d70PU6WATIc/72\na4F6SUzq7U8gyvvLn0Nd86H0cpkWFTYc7ACWaOpsjjtotLhyq1SF9AuSKjir+zAL\nFlDmmNNamX0yYn2lGZ4pU25isaJc0T00BkP2nN9hGJln+Rf3AcUS3pKCaE4/+Ghu\n7gJ1LbGnAgMBAAECggEAK/7UOdAXUqNvG79WI6Qnp1soQFap9YSZ+WrT0TYqd8js\naY3iwDDEghECz/c2J+9RTlXZ84x9uL9i54W07e07LgHFKsdjYXa4u/qnH8hckow8\nnZuj/4FFxcEJt8QNkCvPj1AQ+u9hc3riV9mRVQszyZ+mKFEvmKu2T8ceFW1Jm6aa\n/l+31boyB9EBUaobVmcPec45ym4eSXbr8Q+kj0zwg1fS2rT2gJtidlB9xkJ16H44\nXanicoI8Dpjh8nUNiyKub56IQ2V+tZbzY6AT3fZQLeLpH4dIa0FriPEWhWltJ8X1\ni4BcdrMDf9vrmG2MyfizisyhES4hYH+PcXL4AFb1aQKBgQDpl3JVXbuJpPSXBWD7\neTepsB9cMMpQv5uGC32B1UX5SB92DaQfxDKT/GOOC62FWs0GHLaNqj8CRCCV6/rn\nGfENdL2+cWjTCFZiOA+H5f1k9L5982lpTRlqq5QiLhoAaQf3zSEUsGXMbnvyt/xY\nmjn1Qv0EsXBdGxXu1EwTQrpmtQKBgQDJ+glGbsAiz4h6E4BlKyfPoBuBj9zr43Pd\nmZAhRYbCAAkHptkEWsehO2N4ew08Q3xngZZdj/JchLNYGct5NkvNH/SrxeU2ylkT\nfSESkeyr50DGbSBiZzA2uaRn1Z87bzorxRUhBWSssnIM95sjafo7+uFgTCFIRF5D\nMlxE+8g0awKBgQCBBs54qNW2Kg+Qe8AeJ86/RDGOUsTt5Wiami4xUQTdtSDrrI1D\nnrPxWjADfh/S0Vz+S03q4mb7cXYuWbK1hHbJ3/oO/8XPC4PrrNunTTqyUR4HpDRN\nnfC0IyIn3x8tqtZj4kKrkuQoD78XStlwd4AcIWxw8zIFu7hZu5pp6SndIQKBgFig\n5W0IsDsWQlb/M7oxI7kSEr/ZtyGzn2ZAOmS/M5DxnwTCjDxC8ZKoks+Nf5NQMcjh\nrm/D+J/sgx5Hw2efEcgjG6Q8pIZUaJ4KrHaPngEY6u2neSx1B00cTS5bKRJVjnsi\nclEZIsI9U5qpFGSH3oxvXHJ7NaeWiJ6H/MEwkvudAoGAWBEqNSc9YrfEwg6yCb+N\nW31cbcC4ZHttrWZDI2xdZTtvNQZ5VD2/lMsrl7iCTHPBxLdnKznSdskaYDSv1Ko8\nzT3gS81dG70S2dDSx2exTsunYVY2LEUBd6uJ8s0xEHqOrlnlK3K6CnPPgflnXxq5\nCqghzqXKLY7LGNZ7rtzgLAM=\n-----END PRIVATE KEY-----\n","root-cert.pem":"-----BEGIN CERTIFICATE-----\nMIIE1DCCArwCCQCJyJNsuqYSxDANBgkqhkiG9w0BAQsFADAsMQswCQYDVQQGEwJV\nUzELMAkGA1UECAwCQ0ExEDAOBgNVBAoMB1RldHJhdGUwHhcNMjIwMzIzMDI1MTQx\nWhcNMjMwMzIzMDI1MTQxWjAsMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExEDAO\nBgNVBAoMB1RldHJhdGUwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDe\nF51qmZDvL1CtKqYPlbrFWBJK70KJudm+joP7gwONCa41fcYGRe8Rzj1JixsIVuoW\nNVXxggSd1eE32ZmvYd30zGrz84lB7uqUzZF3c1kHj0mWyHHTsiWsUBa1qcARKFm/\nRM1Ni/BgoLRPnEBZPucd1VHIOmQLgf2fOtMBjMjiDz2wnS0n3+/Cjueue0FDyaO8\nZ6YivnEaj4Zx3ShRN1bQs2NkRGP41Hdhtq1Yk/jGM9y5m9bWWQdaSKoX2kUBhmu3\nmwF+Tr/RM6h21h6jzsek3HGkkPZWPnJB4nWvFxt4TVXBW8xv6p1lQHnewwIHsRwp\nTKE4H3epjUWghQOsT2LeL78h8Oeoez7geHT4Z4sdl5vATCFebhlrFKYjWAYlTtpy\nZ1fduO5CyAOkTfoB9uj+vfXAUZvft1vp2sI0we8tdI8z+rSe+3acXTIl0I/ZjPM7\nB0YKbq1o/gTNpUX99ZuZWOtkCj7abzuNu14Xco+ICwa6KgKUEhAR8gDA+IqiQPwg\nNUtVxp+NIetmc5fFLv+TvA8f9YQzN1oVI3FQ8GWv9aYD0SMEiBD8fsvDt5WWdKwj\nVJ96wkXn1zbG9P1MK6eywHsWQYjdMX3osgF0s8w6/bM/EbSCGtNYYx5ANnVm2Pb6\n2klwc1S6AumjB7mt/8fpW3aDGh0Ue0ZSm53+IS0D0wIDAQABMA0GCSqGSIb3DQEB\nCwUAA4ICAQBh2OZPMp9cu9jMRszSVQxvh7ec+5GtptD0xCesyOWw7DY0cAMKIqiB\n9BQTzwn92CK78fvUQ8f8pRYdQDsL4gWe4xBgvrYKsW6JyTlZuO312K9v0jgyTYhk\nJ23D/AbCIBm1Uk3LMTOFHkinNJL1QmRya5cv0XjK/9XZycAjAFkjfz7M9KEES9xJ\nUmYLjAOz6XZnqWKGMODRiXEuuUnOqq0ycatSfEAUq7tVN/GFrS6GYEtkY4SBsZw/\nOoVYbwOgqn2BoiST6JmHPu8ZmUP1pUDHb0rWxYV6Kbthm2Ium2nZsxmP0KFgMTA2\nAUJLwkC1Ttk1q15q5e83cMLHLgEOesOqYBogQxEGL8+x2CNxU0mY2m0c5GeKib2N\nXWBglUmpjTknubPHKiS2I4zuu1VDwZ85kQ11elGE8T1kBAK58Xf96D8MlDCy6nfw\nDhhQovV+1VD5bKNSoUeUiOFcRGlwrG2jWojdTrOWz113NBfm5Fpp4B5h5YUeI8ZA\nOfKu9zql2f2TzkU16wfMOxpc14CwPHo1lUirb8fZwwNKYsXLRjMzlwnGWyH15EQ5\ngxp5II/xRsjmz1/iL1umS8U4XFVV2COcSS0GhFpGKcv9gisbDRTAYstoTw+qu/hr\n32tXXwQaZhrAbsWGES19EzDHDRvP+xjaaqDte0/v9JDAErF56ngdoA==\n-----END CERTIFICATE-----\n"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"echo-certs","namespace":"echo-7-64437"}}
+  creationTimestamp: "2022-09-26T13:01:08Z"
+  name: echo-certs
+  namespace: echo-dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"echo"},"name":"echo","namespace":"echo-7-64437"},"spec":{"ports":[{"name":"grpc","port":7070,"targetPort":7070},{"name":"http","port":80,"targetPort":8090},{"name":"https","port":9443,"targetPort":9443},{"name":"tcp-opaque","port":6666,"targetPort":7777},{"name":"tcp-opaque-2","port":6688,"targetPort":7799}],"selector":{"app":"echo"}}}
+  creationTimestamp: "2022-09-26T13:01:08Z"
+  labels:
+    app: echo
+  name: echo
+  namespace: echo-dev
+spec:
+  ports:
+  - name: grpc
+    port: 7070
+    protocol: TCP
+    targetPort: 7070
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8090
+  - name: https
+    port: 9443
+    protocol: TCP
+    targetPort: 9443
+  - name: tcp-opaque
+    port: 6666
+    protocol: TCP
+    targetPort: 7777
+  - name: tcp-opaque-2
+    port: 6688
+    protocol: TCP
+    targetPort: 7799
+  selector:
+    app: echo
+  sessionAffinity: None
+  type: ClusterIP
+
+
+
+    

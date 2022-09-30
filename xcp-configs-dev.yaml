@@ -1,0 +1,52 @@
+apiVersion: xcp.tetrate.io/v2
+kind: Workspace
+metadata:
+  labels:
+  name: echo-dev
+  namespace: tsb
+spec:
+  environment: dev
+  namespaceSelector:
+    names:
+    - '*/echo-dev'
+---
+apiVersion: gateway.xcp.tetrate.io/v2
+kind: GatewayGroup
+metadata:
+  labels:
+    xcp.tetrate.io/workspace: echo-dev
+  name: echo-dev
+  namespace: tsb
+spec:
+  namespaceSelector:
+    names:
+    - '*/echo-dev'
+---
+apiVersion: gateway.xcp.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  labels:
+    xcp.tetrate.io/gatewayGroup: echo-dev
+    xcp.tetrate.io/workspace: echo-dev
+  name: echo-dev
+  namespace: tsb
+spec:
+  http:
+  - authorization:
+      meshInternalAuthz: {}
+    hostname: echo.tetrate.io
+    name: echo
+    port: 443
+    routing:
+      rules:
+      - route:
+          host: echo-dev/echo.echo-dev.svc.cluster.local
+          port: 80
+    tls:
+      mode: SIMPLE
+      secretName: echo-certs
+  workloadSelector:
+    labels:
+      app: tsb-gateway-echo-dev
+    namespace: echo-dev
+

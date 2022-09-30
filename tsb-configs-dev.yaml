@@ -1,0 +1,53 @@
+apiVersion: api.tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: echo-dev
+  organization: tetrateio
+  tenant: tetrate
+spec:
+  environment: dev
+  namespaceSelector:
+    names:
+      - "*/echo-dev"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: echo-dev
+  organization: tetrateio
+  tenant: tetrate
+  workspace: echo-dev
+spec:
+  displayName: gg-dn
+  namespaceSelector:
+    names:
+      - "*/echo-dev"
+  configMode: BRIDGED
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: echo-dev
+  organization: tetrateio
+  tenant: tetrate
+  workspace: echo-dev
+  group: echo-dev
+spec:
+  displayName: echo-dev
+  workloadSelector:
+    namespace: echo-dev
+    labels:
+      app: tsb-gateway-dev
+  http:
+    - name: echo
+      port: 443
+      hostname: "echo.tetrate.io"
+      tls:
+        mode: SIMPLE
+        secretName: echo-certs
+      routing:
+        rules:
+          - route:
+              host: "echo-dev/echo.echo-dev.svc.cluster.local"
+              port: 80
+

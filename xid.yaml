@@ -1,0 +1,39 @@
+apiVersion: install.xcp.tetrate.io/v1alpha1
+kind: IngressDeployment
+metadata:
+  name: tsb-gateway-echo-dev
+  namespace: istio-system
+spec:
+  connectionDrainDuration: 5s
+  kubeSpec:
+    deployment:
+      replicaCount: 1
+    service:
+      ports:
+      - name: istio-mtls
+        port: 15443
+        targetPort: 15443
+      - name: http2-test
+        port: 8080
+        targetPort: 8080
+      - name: status-port
+        port: 15021
+        targetPort: 15021
+      - name: https
+        port: 443
+        targetPort: 8443
+      - name: https-2
+        port: 17443
+        targetPort: 17443
+      - name: https-3
+        port: 18443
+        targetPort: 19443
+      - name: tcp-opaque
+        port: 6666
+        targetPort: 8888
+      - name: tcp-with-tls
+        port: 9999
+        targetPort: 9977
+      type: LoadBalancer
+  namespace: echo-dev
+  revision: greenish

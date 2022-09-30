@@ -1,0 +1,53 @@
+apiVersion: api.tsb.tetrate.io/v2
+kind: Workspace
+metadata:
+  name: echo-qa
+  organization: tetrateio
+  tenant: tetrate
+spec:
+  environment: qa
+  namespaceSelector:
+    names:
+      - "*/echo-qa"
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: Group
+metadata:
+  name: echo-qa
+  organization: tetrateio
+  tenant: tetrate
+  workspace: echo-qa
+spec:
+  displayName: gg-dn
+  namespaceSelector:
+    names:
+      - "*/echo-qa"
+  configMode: BRIDGED
+---
+apiVersion: gateway.tsb.tetrate.io/v2
+kind: IngressGateway
+metadata:
+  name: echo-qa
+  organization: tetrateio
+  tenant: tetrate
+  workspace: echo-qa
+  group: echo-qa
+spec:
+  displayName: echo-qa
+  workloadSelector:
+    namespace: echo-qa
+    labels:
+      app: tsb-gateway-qa
+  http:
+    - name: echo
+      port: 443
+      hostname: "echo.tetrate.io"
+      tls:
+        mode: SIMPLE
+        secretName: echo-certs
+      routing:
+        rules:
+          - route:
+              host: "echo-qa/echo.echo-qa.svc.cluster.local"
+              port: 80
+
